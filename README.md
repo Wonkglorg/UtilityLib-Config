@@ -13,7 +13,7 @@
 
 ## <a name="introduction"></a>Introduction
 
-This library adds easy to use configs. With creation and managment
+Lightweight Config and Language manager library
 
 ## <a name="requirements"></a>Requirements
 
