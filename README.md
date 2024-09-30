@@ -1,4 +1,4 @@
-# Minecraft-UtilityLib - Config
+# UtilityLib - Config
 
 ![alt text](https://github.com/Wonkglorg/Minecraft-UtilityLib/blob/master/Logo.png?raw=true)
 
