@@ -37,7 +37,7 @@ public final class ConfigManager {
     /**
      * The config map which contains all the configs
      */
-    private final Map<String, Config> configMap = new HashMap<>();
+    private final Map<Class<? extends Config>, Map<String, Config>> configMap = new HashMap<>();
 
     private static ConfigManager instance;
 
@@ -74,11 +74,12 @@ public final class ConfigManager {
     /**
      * Adds a config to the manager
      *
-     * @param name   the name to reference the config by
+     * @param name   the name to reference the config by (can overwrite existing configs if the name is the same)
      * @param config the config to add
      */
     public synchronized void add(@NotNull String name, @NotNull Config config) {
-        configMap.putIfAbsent(name, config);
+        configMap.computeIfAbsent(config.getClass(), k -> new HashMap<>());
+        configMap.get(config.getClass()).put(name, config);
         config.silentLoad();
     }
 
@@ -86,55 +87,73 @@ public final class ConfigManager {
      * Loads all configs
      */
     public synchronized void load() {
-        configMap.values().forEach(Config::load);
+        configMap.values().forEach(configs -> configs.values().forEach(Config::load));
     }
 
     /**
      * Loads all configs silently
      */
     public synchronized void silentLoad() {
-        configMap.values().forEach(Config::silentLoad);
+        configMap.values().forEach(configs -> configs.values().forEach(Config::silentLoad));
     }
 
     /**
      * Saves all configs
      */
     public synchronized void save() {
-        configMap.values().forEach(Config::save);
+        configMap.values().forEach(configs -> configs.values().forEach(Config::save));
     }
 
     /**
      * Saves all configs silently
      */
     public synchronized void silentSave() {
-        configMap.values().forEach(Config::silentSave);
+        configMap.values().forEach(configs -> configs.values().forEach(Config::silentSave));
     }
 
     /**
-     * Can cause issues if you have multiple configs with the same name not recommended
+     * Gets a config by its file name not the key set by the {@link #add(String, Config)}
+     * <br>
+     * Can cause unexpected results if there are multiple configs with the same name
      *
      * @param name the name of the config file
      * @return the config or an empty optional if not found
      */
-    public synchronized Optional<Config> getConfigByName(String name) {
-        for (Config config : configMap.values()) {
-            if (config.name().equalsIgnoreCase(name)) {
-                return Optional.of(config);
+    public synchronized <T> Optional<Config> getConfigByName(String name) {
+        for (var configEntry : configMap.values()) {
+            for (var entry : configEntry.entrySet()) {
+                if (entry.getValue().name().equalsIgnoreCase(name)) {
+                    return Optional.of(entry.getValue());
+                }
             }
         }
         return Optional.empty();
     }
 
     /**
-     * Gets a congig by its path checks for both entered path and data folder path of the plugin
-     * automatixally prefixes the data folder path if not already present
+     * Gets a Config by its name and class automatically casts it to the class
      *
-     * @param name
-     * @return
+     * @param name the name of the config
+     * @return the config or an empty optional if not found
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized <T extends Config> Optional<T> getConfig(String name, Class<T> clazz) {
+        return Optional.ofNullable((T) configMap.get(clazz).get(name));
+    }
+
+    /**
+     * Gets a Config by its name
+     *
+     * @param name the name of the config
+     * @return the config or an empty optional if not found
      */
     public synchronized Optional<Config> getConfig(String name) {
-        return Optional.ofNullable(configMap.get(name));
-
+        for (Map<String, Config> configs : configMap.values()) {
+            if (configs.containsKey(name)) {
+                return Optional.of(configs.get(name));
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -174,7 +193,19 @@ public final class ConfigManager {
         return tempConfigs;
     }
 
-    public Collection<Config> getConfigMap() {
-        return configMap.values();
+    /**
+     * Gets all configs stored in the manager
+     * @return a collection of all configs
+     */
+    public Collection<Config> getConfigs() {
+        return configMap.values().stream().flatMap(map -> map.values().stream()).toList();
+    }
+
+    /**
+     * Gets all configs stored in the manager
+     * @return a collection of all configs
+     */
+    public Map<Class<? extends Config>, Map<String, Config>> getConfigMap() {
+        return configMap;
     }
 }

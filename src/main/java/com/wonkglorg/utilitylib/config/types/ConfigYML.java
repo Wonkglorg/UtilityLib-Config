@@ -83,7 +83,8 @@ public class ConfigYML extends YamlConfiguration implements Config {
      * @param deep deep search to get children of children
      * @return {@link Set} of results.
      */
-    public Set<String> getSection(String path, boolean deep) {
+    @Override
+    public Set<String> getKeys(String path, boolean deep) {
         ConfigurationSection section = getConfigurationSection(path);
         if (section != null) {
             return section.getKeys(deep);
@@ -94,19 +95,19 @@ public class ConfigYML extends YamlConfiguration implements Config {
     /**
      * gets a section of the config at the set path with a value to automatically cast to
      *
-     * @param path path inside yml config.
-     * @param deep deep search to get children of children
+     * @param path path inside yml config if blank, uses the root of the config
      * @param <T>  type of the map
      * @return {@link Map} of results.
      */
     @SuppressWarnings("unchecked")
-    public <T> Map<String, T> getValues(String path, boolean deep) {
-        if (path == null || path.isBlank()) {
-            return (Map<String, T>) getValues(deep);
+    @Override
+    public <T> Map<String, T> getEntries(@NotNull String path) {
+        if (path.isBlank()) {
+            return (Map<String, T>) getValues(false);
         }
         ConfigurationSection section = getConfigurationSection(path);
         if (section != null) {
-            return (Map<String, T>) section.getValues(deep);
+            return (Map<String, T>) section.getValues(false);
         }
         return Map.of();
     }
