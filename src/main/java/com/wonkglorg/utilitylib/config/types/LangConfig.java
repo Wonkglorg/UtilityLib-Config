@@ -13,9 +13,19 @@ import java.util.logging.Level;
 public class LangConfig extends ConfigYML {
 
     /**
-     * Path to the placeholder definitions in the lang file
+     * Path to the placeholder definitions in the lang file, all keys defined under this path will be added to the automatic replacer map
+     * (default: "placeholders")
+     *
+     * <p>Example:
+     * <pre>
+     *     placeholders:
+     *          mod-name: "My Mod Name"
+     *          mod-version: "1.0.0"
+     * </pre>
+     * This structure defines that all occurrences of %mod-name% will be replaced by "My Mod Name" and %mod-version% by "1.0.0"
      */
     private String placeholderPath = "placeholders";
+    private char placeholderChar = '%';
     /**
      * Update request used when the replacer map needs to be updated
      */
@@ -83,9 +93,9 @@ public class LangConfig extends ConfigYML {
     public void updateReplacerMap() {
         if (this.isSet(this.getPlaceholderPath())) {
             String path = this.getPlaceholderPath();
-            for (String placeholderKey : this.getSection(path, false)) {
-                String placeholderValue = this.getString(path + "." + placeholderKey);
-                String searchKey = "%" + placeholderKey + "%";
+            for (Map.Entry<String, Object> entry : getEntries(path).entrySet()) {
+                String placeholderValue = entry.getValue().toString();
+                String searchKey = placeholderChar + entry.getKey() + placeholderChar;
                 replacerMap.put(searchKey, placeholderValue);
             }
         }
@@ -93,10 +103,17 @@ public class LangConfig extends ConfigYML {
         setUpdateRequest(false);
     }
 
+    /**
+     * @return the replacer map of all keys to be replaced and their values
+     */
     public Map<String, String> getReplacerMap() {
+        if (isUpdateRequest()) updateReplacerMap();
         return replacerMap;
     }
 
+    /**
+     * @param placeholderString the path to the placeholder definitions in the lang file (default: "placeholders")
+     */
     public void setPlaceholderPath(String placeholderString) {
         this.placeholderPath = placeholderString;
     }
@@ -105,12 +122,31 @@ public class LangConfig extends ConfigYML {
         return placeholderPath;
     }
 
+    /**
+     * @return true if an update of the replacer map is requested but not yet performed
+     */
     public boolean isUpdateRequest() {
         return updateRequest;
     }
 
+    /**
+     * @param updateRequest when set to true updates the replacer map when next requested
+     */
     public void setUpdateRequest(boolean updateRequest) {
         this.updateRequest = updateRequest;
     }
 
+    /**
+     * @return the character used to denote placeholders
+     */
+    public char getPlaceholderChar() {
+        return placeholderChar;
+    }
+
+    /**
+     * @param placeholderChar the character used to denote placeholders
+     */
+    public void setPlaceholderChar(char placeholderChar) {
+        this.placeholderChar = placeholderChar;
+    }
 }
