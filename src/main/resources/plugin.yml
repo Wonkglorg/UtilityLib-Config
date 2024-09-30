@@ -1,0 +1,4 @@
+name: UtilityLib - Config
+version: '1.0'
+main: com.wonkglorg.utilitylib.UtilityLibConfig
+api-version: '1.20'
