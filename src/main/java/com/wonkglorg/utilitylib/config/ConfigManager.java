@@ -15,6 +15,15 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A Configmanager to handle accessing configs.
+ *
+ * <br>
+ * <br>
+ * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE
+ *
+ * @author Wonkglorg
+ */
 @SuppressWarnings("unused")
 public final class ConfigManager {
     /**
@@ -25,15 +34,42 @@ public final class ConfigManager {
      * The JavaPlugin instance
      */
     private final JavaPlugin plugin;
+    /**
+     * The config map which contains all the configs
+     */
+    private final Map<String, Config> configMap = new HashMap<>();
 
     private static ConfigManager instance;
 
+    /**
+     * Creates a new instance of the LangManager
+     *
+     * @param plugin the plugin to create the instance for
+     * @return the created instance
+     */
+    public static ConfigManager createInstance(JavaPlugin plugin) {
+        if (instance == null) {
+            instance = new ConfigManager(plugin);
+        }
+        return instance;
+    }
 
-    public ConfigManager(JavaPlugin plugin) {
+    /**
+     * Gets the instance of the LangManager use {@link ConfigManager#createInstance(JavaPlugin)} before to initialize the instance
+     *
+     * @return the instance of the LangManager or null if not initialized correctly
+     */
+    public static ConfigManager getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("ConfigManager instance has not been initialized!");
+        }
+        return instance;
+    }
+
+    private ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
-    private final Map<String, Config> configMap = new HashMap<>();
 
     /**
      * Adds a config to the manager

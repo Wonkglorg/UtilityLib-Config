@@ -16,6 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A Configmanager to handle accessing configs.
+ * <br>
+ * <br>
+ * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE
+ *
  * @author Wonkglorg
  */
 @SuppressWarnings("unused")
@@ -27,21 +32,48 @@ public final class LangManager {
     /**
      * The lang map which contains all the language configs
      */
-    private static final Map<Locale, LangConfig> langMap = new ConcurrentHashMap<>();
+    private final Map<Locale, LangConfig> langMap = new ConcurrentHashMap<>();
     /**
      * The replacer map which contains all the values to be replaced when called
      */
-    private static final Map<String, String> replacerMap = new ConcurrentHashMap<>();
+    private final Map<String, String> replacerMap = new ConcurrentHashMap<>();
     /**
      * The default language
      */
-    private static Locale defaultLang = Locale.ENGLISH;
+    private Locale defaultLang = Locale.ENGLISH;
     /**
      * The JavaPlugin instance
      */
     private final JavaPlugin plugin;
 
-    public LangManager(JavaPlugin plugin) {
+    private static LangManager instance;
+
+    /**
+     * Creates a new instance of the LangManager
+     *
+     * @param plugin the plugin to create the instance for
+     * @return the created instance
+     */
+    public static LangManager createInstance(JavaPlugin plugin) {
+        if (instance == null) {
+            instance = new LangManager(plugin);
+        }
+        return instance;
+    }
+
+    /**
+     * Gets the instance of the LangManager use {@link LangManager#createInstance(JavaPlugin)} before to initialize the instance
+     *
+     * @return the instance of the LangManager or null if not initialized correctly
+     */
+    public static LangManager getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("LangManager instance has not been initialized!");
+        }
+        return instance;
+    }
+
+    private LangManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -63,7 +95,7 @@ public final class LangManager {
      */
     public synchronized void setDefaultLang(Locale defaultLang, LangConfig defaultConfig) {
         langMap.put(defaultLang, defaultConfig);
-        LangManager.defaultLang = defaultLang;
+        this.defaultLang = defaultLang;
         defaultConfig.silentLoad();
     }
 
@@ -192,7 +224,7 @@ public final class LangManager {
      * @param defaultValue the default value to return if no value was found
      * @return the returned result or the value if no result was found
      */
-    public static String getValue(final Locale locale, @NotNull final String key, @NotNull final String defaultValue) {
+    public String getValue(final Locale locale, @NotNull final String key, @NotNull final String defaultValue) {
         LangConfig config;
         if (locale == null) {
             config = langMap.get(defaultLang);
