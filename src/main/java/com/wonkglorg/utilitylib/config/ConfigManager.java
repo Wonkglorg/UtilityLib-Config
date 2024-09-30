@@ -59,7 +59,7 @@ public final class ConfigManager {
      *
      * @return the instance of the LangManager or null if not initialized correctly
      */
-    public static ConfigManager getInstance() {
+    public static ConfigManager instance() {
         if (instance == null) {
             throw new IllegalStateException("ConfigManager instance has not been initialized!");
         }

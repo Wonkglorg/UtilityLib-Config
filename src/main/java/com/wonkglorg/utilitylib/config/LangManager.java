@@ -66,7 +66,7 @@ public final class LangManager {
      *
      * @return the instance of the LangManager or null if not initialized correctly
      */
-    public static LangManager getInstance() {
+    public static LangManager instance() {
         if (instance == null) {
             throw new IllegalStateException("LangManager instance has not been initialized!");
         }
