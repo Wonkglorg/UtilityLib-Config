@@ -269,9 +269,11 @@ public final class LangManager {
         if (langMap.isEmpty()) {
             return Optional.empty();
         }
-        if (langMap.containsKey(locale)) {
+
+        if (locale != null && langMap.containsKey(locale)) {
             return Optional.of(langMap.get(locale));
         }
+
         if (langMap.containsKey(defaultLang)) {
             return Optional.of(langMap.get(defaultLang));
         }
