@@ -26,6 +26,9 @@ public final class ConfigManager {
      */
     private final JavaPlugin plugin;
 
+    private static ConfigManager instance;
+
+
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
