@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -226,16 +227,15 @@ public final class LangManager {
      */
     public String getValue(final Locale locale, @NotNull final String key, @NotNull final String defaultValue) {
         LangConfig config;
-        if (locale == null) {
-            config = langMap.get(defaultLang);
-        } else {
-            config = langMap.containsKey(locale) ? langMap.get(locale) : langMap.get(defaultLang);
-        }
 
-        if (config == null) {
+        var configOptional = getAnyValidLangConfig(locale);
+        if (configOptional.isPresent()) {
+            config = configOptional.get();
+        } else {
             Bukkit.getLogger().log(Level.INFO, "No lang file could be loaded for request: " + key + " using default value!");
             return defaultValue;
         }
+
 
         String editString = config.getString(key);
         if (editString == null) {
@@ -257,6 +257,25 @@ public final class LangManager {
 
         return editString;
 
+    }
+
+    /**
+     * Gets any valid language config to use (first checks if the locale is present, then the default locale, then any locale)
+     *
+     * @param locale the locale to get the language config for
+     * @return the language config or empty if none could be found
+     */
+    private Optional<LangConfig> getAnyValidLangConfig(Locale locale) {
+        if (langMap.isEmpty()) {
+            return Optional.empty();
+        }
+        if (langMap.containsKey(locale)) {
+            return Optional.of(langMap.get(locale));
+        }
+        if (langMap.containsKey(defaultLang)) {
+            return Optional.of(langMap.get(defaultLang));
+        }
+        return Optional.of(langMap.values().iterator().next());
     }
 
     /**

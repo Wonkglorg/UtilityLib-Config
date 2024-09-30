@@ -76,8 +76,6 @@ public class ConfigYML extends YamlConfiguration implements Config {
         this(plugin, path, Path.of(plugin.getDataFolder().getPath(), path.toString()));
     }
 
-    //make version where copy and destination are the same if you just enter 1 path
-
     /**
      * Gets a section of the config at the set path.
      *
@@ -94,7 +92,7 @@ public class ConfigYML extends YamlConfiguration implements Config {
     }
 
     /**
-     * gets
+     * gets a section of the config at the set path with a value to automatically cast to
      *
      * @param path path inside yml config.
      * @param deep deep search to get children of children
