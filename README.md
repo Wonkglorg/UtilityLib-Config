@@ -13,7 +13,7 @@
 
 ## <a name="introduction"></a>Introduction
 
-Lightweight Config and Language manager library
+Lightweight Config and Language manager library as a seperate module as part of the UtilityLib library
 
 ## <a name="requirements"></a>Requirements
 
