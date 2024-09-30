@@ -117,28 +117,28 @@ public final class ConfigManager {
      * Can cause unexpected results if there are multiple configs with the same name
      *
      * @param name the name of the config file
-     * @return the config or an empty optional if not found
+     * @return the config or null
      */
-    public synchronized <T> Optional<Config> getConfigByName(String name) {
+    public synchronized <T> Config getConfigByName(String name) {
         for (var configEntry : configMap.values()) {
             for (var entry : configEntry.entrySet()) {
                 if (entry.getValue().name().equalsIgnoreCase(name)) {
-                    return Optional.of(entry.getValue());
+                    return entry.getValue();
                 }
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     /**
      * Gets a Config by its name and class automatically casts it to the class
      *
      * @param name the name of the config
-     * @return the config or an empty optional if not found
+     * @return the config or null
      */
     @SuppressWarnings("unchecked")
-    public synchronized <T extends Config> Optional<T> getConfig(String name, Class<T> clazz) {
-        return Optional.ofNullable((T) configMap.get(clazz).get(name));
+    public synchronized <T extends Config> T getConfig(String name, Class<T> clazz) {
+        return (T) configMap.get(clazz).get(name);
     }
 
     /**
