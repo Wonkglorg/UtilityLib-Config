@@ -85,6 +85,9 @@ public class ConfigYML extends YamlConfiguration implements Config {
      */
     @Override
     public Set<String> getKeys(String path, boolean deep) {
+        if (path == null || path.isBlank()) {
+            return getKeys(deep);
+        }
         ConfigurationSection section = getConfigurationSection(path);
         if (section != null) {
             return section.getKeys(deep);
