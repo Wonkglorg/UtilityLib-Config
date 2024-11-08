@@ -243,7 +243,7 @@ public final class LangManager {
      */
     @Contract(pure = true, value = "null -> null")
     public String getValue(String key) {
-        return getValue(null, key, key);
+        return getValue((Locale) null, key, key);
     }
 
 
