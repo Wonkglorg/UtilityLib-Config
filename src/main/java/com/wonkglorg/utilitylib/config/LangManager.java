@@ -4,14 +4,11 @@ import com.wonkglorg.utilitylib.config.types.Config;
 import com.wonkglorg.utilitylib.config.types.LangConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Contract;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +45,17 @@ public final class LangManager {
     private final JavaPlugin plugin;
 
     private static LangManager instance;
+
+    /**
+     * Maps locales with the same base language name to its language name (to easier assign all relevant names to this from file alone)
+     */
+    private static final Map<String, Set<Locale>> shortNameToLocaleMapper = new ConcurrentHashMap<>();
+
+    static {
+        for (Locale locale : Locale.getAvailableLocales()) {
+            shortNameToLocaleMapper.computeIfAbsent(locale.getLanguage(), k -> new HashSet<>()).add(locale);
+        }
+    }
 
     /**
      * Creates a new instance of the LangManager
@@ -110,17 +118,47 @@ public final class LangManager {
     }
 
     /**
-     * Adds a language to the lang manager
+     * Adds a language to the lang manager this is for single locales specifically to get a whole subsection of locales registered use the prefered method {@link #addLanguage(LangConfig, String, String...)} where each string is its {@link Locale#getLanguage()} definition
      *
-     * @param locale         the locale of the language
+     * @param locale         1 or more locale this config should apply to
      * @param languageConfig the language config
      */
-    public synchronized void addLanguage(Locale locale, LangConfig languageConfig) {
-        if (langMap.containsKey(locale)) {
+    public synchronized void addLanguage(LangConfig languageConfig, Locale locale, Locale... extraLocale) {
+        langMap.putIfAbsent(locale, languageConfig);
+        for (Locale loc : extraLocale) {
+            langMap.putIfAbsent(loc, languageConfig);
+        }
+        languageConfig.silentLoad();
+    }
+
+    /**
+     * Adds a language to the lang manager this is a more generic version of {@link #addLanguage(LangConfig, Locale, Locale...)},
+     * since multiple locales share the same language code this method allows to add all common locales based on its language code(example:
+     * <pre>
+     *     {@code "en" -> en_US, en_GB, en_CA, etc...}
+     * @param languageConfig the language config
+     * @param langName the name of the language derived from {@link Locale#getLanguage()}
+     * @param extraLangNames extra names to add to the language
+     */
+    public synchronized void addLanguage(LangConfig languageConfig, String langName, String... extraLangNames) {
+        Set<Locale> locales = shortNameToLocaleMapper.get(langName);
+        if (locales == null) {
+            LOGGER.log(Level.WARNING, "No locale found for file: " + langName);
             return;
         }
-        langMap.putIfAbsent(locale, languageConfig);
-        languageConfig.silentLoad();
+        for (Locale locale : locales) {
+            addLanguage(languageConfig, locale);
+        }
+        for (String extraLangName : extraLangNames) {
+            locales = shortNameToLocaleMapper.get(extraLangName);
+            if (locales == null) {
+                LOGGER.log(Level.WARNING, "No locale found for file: " + extraLangName);
+                continue;
+            }
+            for (Locale locale : locales) {
+                addLanguage(languageConfig, locale);
+            }
+        }
     }
 
     /**
@@ -182,13 +220,16 @@ public final class LangManager {
             if (!file.getName().endsWith(".yml")) {
                 continue;
             }
-            for (Locale locale : Locale.getAvailableLocales()) {
-                if (locale.getLanguage().equalsIgnoreCase(file.getName().replace(".yml", ""))) {
-                    LOGGER.log(Level.INFO, file.getName() + " has been loaded!");
-                    LangConfig config = new LangConfig(plugin, file.toPath());
-                    addLanguage(locale, config);
-                }
+            Set<Locale> locales = shortNameToLocaleMapper.get(file.getName().replace(".yml", ""));
+            if (locales == null) {
+                LOGGER.log(Level.WARNING, "No locale found for file: " + file.getName());
+                continue;
             }
+            for (Locale locale : locales) {
+                LangConfig langConfig = new LangConfig(plugin, path.resolve(file.getName()).toString());
+                addLanguage(langConfig, locale);
+            }
+
         }
     }
 
@@ -199,21 +240,11 @@ public final class LangManager {
      * @param key the key to get ny
      * @return the returned result or the key if no result was found
      */
-
+    @Contract(pure = true, value = "null -> null")
     public String getValue(String key) {
         return getValue(null, key, key);
     }
 
-    /**
-     * Gets a value from the default language file with replacements applied
-     *
-     * @param player the player to get the locale from
-     * @param key    the key to get by
-     * @return the returned result or the value if no result was found
-     */
-    //public String getValue(Player player, String key) {
-    //    return getValue(, player.getLocale(), key, key);
-    //}
 
     /**
      * Gets a value from the default language file with replacements applied
@@ -222,7 +253,8 @@ public final class LangManager {
      * @param key    the key to get by
      * @return the returned result or the value if no result was found
      */
-    public String getValue(@NotNull final Locale locale, @NotNull final String key) {
+    @Contract(pure = true, value = "_, null -> null")
+    public String getValue(final Locale locale, final String key) {
         return getValue(locale, key, key);
     }
 
@@ -234,7 +266,8 @@ public final class LangManager {
      * @param defaultValue the default value to return if no value was found
      * @return the returned result or the value if no result was found
      */
-    public String getValue(final Locale locale, @NotNull final String key, @NotNull final String defaultValue) {
+    @Contract(pure = true, value = "_,null,null -> null; _,_,!null -> !null")
+    public String getValue(final Locale locale, final String key, final String defaultValue) {
         LangConfig config;
 
         var configOptional = getAnyValidLangConfig(locale);
@@ -274,7 +307,7 @@ public final class LangManager {
      * @param locale the locale to get the language config for
      * @return the language config or empty if none could be found
      */
-    private Optional<LangConfig> getAnyValidLangConfig(Locale locale) {
+    private Optional<LangConfig> getAnyValidLangConfig(final Locale locale) {
         if (langMap.isEmpty()) {
             return Optional.empty();
         }
@@ -304,7 +337,8 @@ public final class LangManager {
      * @param name the name of the language file
      * @return the language config or null if not found
      */
-    public synchronized LangConfig getLangByFileName(String name) {
+    @Contract(pure = true, value = "null -> null")
+    public synchronized LangConfig getLangByFileName(final String name) {
         for (LangConfig config : langMap.values()) {
             if (config.name().equalsIgnoreCase(name)) {
                 return config;
