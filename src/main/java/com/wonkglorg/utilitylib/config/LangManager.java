@@ -3,6 +3,7 @@ package com.wonkglorg.utilitylib.config;
 import com.wonkglorg.utilitylib.config.types.Config;
 import com.wonkglorg.utilitylib.config.types.LangConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 
@@ -256,6 +257,32 @@ public final class LangManager {
     @Contract(pure = true, value = "_, null -> null")
     public String getValue(final Locale locale, final String key) {
         return getValue(locale, key, key);
+    }
+
+
+    /**
+     * Gets a value from the default language file with replacements applied
+     *
+     * @param player the player to determine the locale for
+     * @param key    the key to get by
+     * @return the returned result or the value if no result was found
+     */
+    @Contract(pure = true, value = "_, null -> null")
+    public String getValue(final Player player, final String key) {
+        return getValue(Locale.forLanguageTag(player.getLocale()), key, key);
+    }
+
+    /**
+     * Gets a value from the default language file with replacements applied
+     *
+     * @param player       the player to determine the locale to get the value from
+     * @param key          the key to get by
+     * @param defaultValue the default value to return if no value was found
+     * @return the returned result or the value if no result was found
+     */
+    @Contract(pure = true, value = "_,null,null -> null; _,_,!null -> !null")
+    public String getValue(final Player player, final String key, final String defaultValue) {
+        return getValue(Locale.forLanguageTag(player.getLocale()), key, defaultValue);
     }
 
     /**

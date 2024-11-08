@@ -10,9 +10,6 @@ import java.util.*;
 public class LangTest {
     @Test
     public void testLangRecognition() {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.randomUUID());
-        player.getPlayer();
-        Player player1;
         // Test code here
 
 
@@ -21,6 +18,6 @@ public class LangTest {
             map.computeIfAbsent(locale.getLanguage(), k -> new ArrayList<>()).add(locale);
         }
 
-        System.out.println(map);
+        System.out.println(Locale.forLanguageTag("en-US"));
     }
 }
