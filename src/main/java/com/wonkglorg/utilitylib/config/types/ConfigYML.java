@@ -188,8 +188,8 @@ public class ConfigYML extends YamlConfiguration implements Config {
         try {
             save(FILE);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             LOGGER.log(Level.WARNING, "Error saving data to " + NAME + "!");
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

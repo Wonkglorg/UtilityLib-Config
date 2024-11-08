@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * A Configmanager to handle accessing configs.
  * <br>
  * <br>
- * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE
+ * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE  (only needs to be done once during the whole runtime)
  *
  * @author Wonkglorg
  */
