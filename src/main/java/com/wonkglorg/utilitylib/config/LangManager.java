@@ -158,7 +158,7 @@ public final class LangManager {
 
 
     /**
-     * Adds all language files from a given path, the path should be relative to the plugin data folder, the language files should be named after the language they represent as per {@link Locale#getLanguage()} standard naming conventions
+     * Adds all language files from a given path, the path should be relative to the plugin data folder, the language files should be named after the language they represent as per {@link Locale#getLanguage()} standard naming conventions (this does not copy them from the resources folder should be used to let the plugin user add more langs on their own without code changes)
      */
     public synchronized void addAllLangFilesFromPath(Path path) {
         File[] files = Path.of(plugin.getDataFolder().getPath(), path.toString()).toFile().listFiles();
