@@ -101,6 +101,15 @@ public final class LangManager {
     }
 
     /**
+     * Sets the default language to use when no user language could be determined
+     *
+     * @param defaultLang the default language locale
+     */
+    public synchronized void setDefaultLang(Locale defaultLang) {
+        this.defaultLang = defaultLang;
+    }
+
+    /**
      * Adds a language to the lang manager
      *
      * @param locale         the locale of the language
