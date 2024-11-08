@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * A Configmanager to handle accessing configs.
  * <br>
  * <br>
- * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE
+ * BEFORE USING THIS CLASS MAKE SURE TO CALL {@link ConfigManager#createInstance(JavaPlugin)} TO INITIALIZE THE INSTANCE  (only needs to be done once during the whole runtime)
  *
  * @author Wonkglorg
  */
@@ -101,6 +101,15 @@ public final class LangManager {
     }
 
     /**
+     * Sets the default language to use when no user language could be determined
+     *
+     * @param defaultLang the default language locale
+     */
+    public synchronized void setDefaultLang(Locale defaultLang) {
+        this.defaultLang = defaultLang;
+    }
+
+    /**
      * Adds a language to the lang manager
      *
      * @param locale         the locale of the language
@@ -158,7 +167,7 @@ public final class LangManager {
 
 
     /**
-     * Adds all language files from a given path, the path should be relative to the plugin data folder, the language files should be named after the language they represent as per {@link Locale#getLanguage()} standard naming conventions
+     * Adds all language files from a given path, the path should be relative to the plugin data folder, the language files should be named after the language they represent as per {@link Locale#getLanguage()} standard naming conventions (this does not copy them from the resources folder should be used to let the plugin user add more langs on their own without code changes)
      */
     public synchronized void addAllLangFilesFromPath(Path path) {
         File[] files = Path.of(plugin.getDataFolder().getPath(), path.toString()).toFile().listFiles();
