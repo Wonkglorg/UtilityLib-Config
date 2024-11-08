@@ -8,10 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -195,6 +193,7 @@ public final class ConfigManager {
 
     /**
      * Gets all configs stored in the manager
+     *
      * @return a collection of all configs
      */
     public Collection<Config> getConfigs() {
@@ -203,6 +202,7 @@ public final class ConfigManager {
 
     /**
      * Gets all configs stored in the manager
+     *
      * @return a collection of all configs
      */
     public Map<Class<? extends Config>, Map<String, Config>> getConfigMap() {
