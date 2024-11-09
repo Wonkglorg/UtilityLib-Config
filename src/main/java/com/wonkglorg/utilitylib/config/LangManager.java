@@ -221,11 +221,14 @@ public final class LangManager {
             if (!file.getName().endsWith(".yml")) {
                 continue;
             }
+            //todo should specific langs be implemted? so if a file is set to en_US it only applies to en_US instead of all of en?
+
             Set<Locale> locales = shortNameToLocaleMapper.get(file.getName().replace(".yml", ""));
             if (locales == null) {
                 LOGGER.log(Level.WARNING, "No locale found for file: " + file.getName());
                 continue;
             }
+
             for (Locale locale : locales) {
                 LangConfig langConfig = new LangConfig(plugin, path.resolve(file.getName()).toString());
                 addLanguage(langConfig, locale);
