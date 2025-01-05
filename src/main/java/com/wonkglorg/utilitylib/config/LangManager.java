@@ -13,6 +13,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+
+import static java.util.stream.IntStream.*;
 
 /**
  * A Configmanager to handle accessing configs.
@@ -272,7 +276,7 @@ public final class LangManager {
      */
     @Contract(pure = true, value = "_, null -> null")
     public String getValue(final Player player, final String key) {
-        return getValue(Locale.forLanguageTag(player.getLocale()), key, key);
+        return getValue(player.locale(), key, key);
     }
 
     /**
@@ -285,7 +289,7 @@ public final class LangManager {
      */
     @Contract(pure = true, value = "_,null,null -> null; _,_,!null -> !null")
     public String getValue(final Player player, final String key, final String defaultValue) {
-        return getValue(Locale.forLanguageTag(player.getLocale()), key, defaultValue);
+        return getValue(player.locale(), key, defaultValue);
     }
 
     /**
