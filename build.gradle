@@ -57,8 +57,8 @@ tasks.withType(JavaCompile).configureEach {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
+        maven(MavenPublication) {
+            from(components.java)
         }
     }
 }
